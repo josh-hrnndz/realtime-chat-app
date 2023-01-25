@@ -1,0 +1,28 @@
+{
+  "conventionalCommits.scopes": [
+    "settings",
+    "di",
+    "widget",
+    "pubspec",
+    "assets",
+    "widget",
+    "page",
+    "typo",
+    "test",
+    "settings",
+    "windows",
+    "route",
+    "domain",
+    "bloc",
+    "repository",
+    "service",
+    "source",
+    "core",
+    "ios",
+    "main"
+  ],
+  "[dart]": {
+    "editor.defaultFormatter": "Dart-Code.dart-code",
+    "editor.formatOnSave": true
+  }
+}
