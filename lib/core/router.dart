@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:realtime_chat_app/core/const/index.dart';
 import '../view/pages/start.page.dart';
-import 'const/strings.dart';
 
 class Routes {
   GoRouter getRouter() {
