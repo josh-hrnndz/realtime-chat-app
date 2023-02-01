@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:realtime_chat_app/core/const/colors.dart';
+import 'dart:math' as math;
 
 class AppButton extends StatelessWidget {
   final String buttonType;
@@ -10,6 +11,9 @@ class AppButton extends StatelessWidget {
   final Color buttonColor;
   final Color labelColor;
   final double borderRadius;
+  final bool isIconRotated;
+  final double iconRotation;
+  final void Function() onClick;
   const AppButton({
     super.key,
     required this.buttonType,
@@ -20,12 +24,17 @@ class AppButton extends StatelessWidget {
     this.buttonColor = PRIMARY_DARK,
     this.labelColor = TEXT_LIGHT,
     this.borderRadius = 15,
+    required this.onClick,
+    this.isIconRotated = false,
+    this.iconRotation = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+        onClick();
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: buttonColor,
         shape: RoundedRectangleBorder(
@@ -41,10 +50,13 @@ class AppButton extends StatelessWidget {
                 color: labelColor,
               ),
             )
-          : Icon(
-              icon,
-              color: labelColor,
-              size: fontSize,
+          : Transform.rotate(
+              angle: isIconRotated ? iconRotation * math.pi / 180 : 0,
+              child: Icon(
+                icon,
+                color: labelColor,
+                size: fontSize,
+              ),
             ),
     );
   }
