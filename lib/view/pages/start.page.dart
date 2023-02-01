@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:realtime_chat_app/core/const/index.dart';
 import 'package:realtime_chat_app/view/widgets/button.widget.dart';
 
@@ -31,6 +32,9 @@ class StartPage extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 buttonColor: DARK,
                 borderRadius: 21,
+                onClick: () {
+                  context.goNamed(CHAT);
+                },
               ),
             ),
           ],
