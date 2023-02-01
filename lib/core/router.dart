@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:realtime_chat_app/core/const/index.dart';
-import '../view/pages/start.page.dart';
+
+import '../view/pages/index.dart';
 
 class Routes {
   GoRouter getRouter() {
@@ -15,9 +16,16 @@ class Routes {
   static List<GoRoute> routes = [
     GoRoute(
       name: START,
+      path: '/$START',
+      builder: (BuildContext context, GoRouterState state) {
+        return const StartPage();
+      },
+    ),
+    GoRoute(
+      name: CHAT,
       path: '/',
-      pageBuilder: (context, state) {
-        return const MaterialPage(child: StartPage());
+      builder: (BuildContext context, GoRouterState state) {
+        return ChatPage();
       },
     ),
   ];
