@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:realtime_chat_app/core/const/index.dart';
 
+import '../view/bloc/cubit/socket_cubit.dart';
 import '../view/pages/index.dart';
+import 'di.dart';
 
 class Routes {
   GoRouter getRouter() {
@@ -16,14 +19,17 @@ class Routes {
   static List<GoRoute> routes = [
     GoRoute(
       name: START,
-      path: '/$START',
+      path: '/',
       builder: (BuildContext context, GoRouterState state) {
-        return const StartPage();
+        return BlocProvider(
+          create: (context) => sl<SocketCubit>(),
+          child: const StartPage(),
+        );
       },
     ),
     GoRoute(
       name: CHAT,
-      path: '/',
+      path: '/$CHAT',
       builder: (BuildContext context, GoRouterState state) {
         return ChatPage();
       },
