@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:realtime_chat_app/core/const/index.dart';
 import 'package:realtime_chat_app/view/widgets/button.widget.dart';
 import '../bloc/cubit/socket_cubit.dart';
+import '../widgets/modals.dart';
 
 class StartPage extends StatelessWidget {
   const StartPage({super.key});
@@ -16,6 +17,38 @@ class StartPage extends StatelessWidget {
       listener: (context, state) {
         if (state is ConnectionSuccessState) {
           context.goNamed(CHAT);
+        }
+        if (state is ConnectingState) {
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return LoadingModal(
+                height: height,
+                message: "Finding strangers...",
+              );
+            },
+          );
+        }
+        if (state is ConnectionFailedState) {
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return ConnectionFailedModal(
+                height: height,
+                title: "Connection Failed",
+                message: state.failure.message,
+              );
+            },
+          );
+          Future.delayed(
+            const Duration(seconds: 2),
+            () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+          );
         }
       },
       child: Scaffold(

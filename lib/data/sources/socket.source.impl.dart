@@ -20,7 +20,12 @@ class SocketSourceImpl extends SocketSource {
     final completer = Completer<Response>();
     api.serverSocket.on('message', (data) {
       var response = Response.fromJson(data);
-      completer.complete(response);
+      Future.delayed(
+        const Duration(seconds: 2),
+        () {
+          completer.complete(response);
+        },
+      );
     });
 
     return completer.future.timeout(const Duration(seconds: 5), onTimeout: () {
