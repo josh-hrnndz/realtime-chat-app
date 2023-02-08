@@ -7,7 +7,7 @@ class ApiService {
     'autoConnect': false,
   });
 
-  sendMessage(dynamic data) {
-    serverSocket.emit('message', {'data': data});
+  sendMessage(String userId, String message) {
+    serverSocket.emit('message', {'userId': userId, 'message': message});
   }
 }
