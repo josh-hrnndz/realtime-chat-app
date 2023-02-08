@@ -15,4 +15,10 @@ class ConnectionFailedState extends SocketState {
   ConnectionFailedState(this.failure);
 }
 
-class SocketEmittingState extends SocketState {}
+class ReceiveMessagesState extends SocketState {
+  final List<Response> responses;
+  final String userId;
+
+  ReceiveMessagesState(this.responses, this.userId);
+}
+
