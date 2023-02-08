@@ -10,7 +10,7 @@ class Response {
   factory Response.fromJson(Map<String, dynamic> json) {
     return Response(
       userId: json["userId"] ?? "",
-      message: json["data"] ?? "",
+      message: json["message"] ?? "",
     );
   }
 }
