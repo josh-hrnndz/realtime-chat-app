@@ -19,16 +19,18 @@ class SocketSourceImpl extends SocketSource {
 
     final completer = Completer<Response>();
     api.serverSocket.on('onConnect', (data) {
-      var response = Response.fromJson(data);
-      Future.delayed(
-        const Duration(seconds: 2),
-        () {
-          completer.complete(response);
-        },
-      );
+      if (!completer.isCompleted) {
+        var response = Response.fromJson(data);
+        Future.delayed(
+          const Duration(seconds: 2),
+          () {
+            completer.complete(response);
+          },
+        );
+      }
     });
 
-    return completer.future.timeout(const Duration(seconds: 5), onTimeout: () {
+    return completer.future.timeout(const Duration(seconds: 20), onTimeout: () {
       throw NetworkFailure("Connection failed");
     });
   }
@@ -49,5 +51,17 @@ class SocketSourceImpl extends SocketSource {
   @override
   Future<void> sendMessage(String userId, String message) async {
     api.sendMessage(userId, message);
+  }
+
+  @override
+  Future<void> stopConnection() async {
+    api.serverSocket.disconnect();
+
+    await Future.delayed(
+      const Duration(seconds: 2),
+      () {},
+    ).timeout(const Duration(seconds: 20), onTimeout: () {
+      throw NetworkFailure("Connection failed");
+    });
   }
 }
