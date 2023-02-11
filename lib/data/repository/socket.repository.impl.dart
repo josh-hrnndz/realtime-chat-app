@@ -7,7 +7,7 @@ import '../../domain/sources/socket.source.dart';
 
 class SocketRepositoryImpl implements SocketRepository {
   final SocketSource source;
-  final List<Response> _responses = [];
+  List<Response> _responses = [];
   String _userId = "";
 
   SocketRepositoryImpl({required this.source});
@@ -29,6 +29,11 @@ class SocketRepositoryImpl implements SocketRepository {
   }
 
   @override
+  void clearResponses() {
+    _responses = [];
+  }
+
+  @override
   Future<Either<Failure, Response>> connect() {
     return ErrorHandler.async<Response>(source.connect());
   }
@@ -45,5 +50,10 @@ class SocketRepositoryImpl implements SocketRepository {
   @override
   Future<Either<Failure, void>> sendMessage(String userId, String message) {
     return ErrorHandler.async<void>(source.sendMessage(userId, message));
+  }
+
+  @override
+  Future<Either<Failure, void>> stopConnection() {
+    return ErrorHandler.async<void>(source.stopConnection());
   }
 }

@@ -4,4 +4,5 @@ abstract class SocketSource {
   Future<Response> connect();
   Stream<Response> getMessages();
   Future<void> sendMessage(String userId, String message);
+  Future<void> stopConnection();
 }

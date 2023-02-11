@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:realtime_chat_app/domain/repository/socket.repository.dart';
@@ -11,6 +13,7 @@ class SocketCubit extends Cubit<SocketState> {
   final SocketRepository socketRepository;
   SocketCubit({required this.socketRepository}) : super(SocketInitial());
 
+  StreamSubscription? _streamSubscription;
   connect() {
     emit(ConnectingState());
 
@@ -18,7 +21,6 @@ class SocketCubit extends Cubit<SocketState> {
           (res) => res.fold(
             (failure) => emit(ConnectionFailedState(failure)),
             (success) {
-              print(success.userId);
               socketRepository.setUser(success.userId);
               emit(ConnectionSuccessState());
             },
@@ -31,14 +33,14 @@ class SocketCubit extends Cubit<SocketState> {
           (res) => res.fold(
             (failure) => emit(ConnectionFailedState(failure)),
             (success) {
-              final stream = res.getOrElse(() => const Stream.empty());
-              stream.listen((response) {
+              _streamSubscription =
+                  res.getOrElse(() => const Stream.empty()).listen((response) {
                 if (response.userId != socketRepository.userId) {
                   socketRepository.addResponse(response);
                 }
                 emit(ReceiveMessagesState(
                     socketRepository.responses, socketRepository.userId));
-              });
+              }, cancelOnError: true);
             },
           ),
         );
@@ -54,5 +56,22 @@ class SocketCubit extends Cubit<SocketState> {
             (success) => {},
           ),
         );
+  }
+
+  stopConnection() {
+    socketRepository.stopConnection().then(
+          (res) => res.fold(
+            (failure) => emit(ConnectionFailedState(failure)),
+            (success) => {
+              _streamSubscription?.cancel(),
+              _streamSubscription = null,
+              emit(DisconnectSuccessState()),
+            },
+          ),
+        );
+  }
+
+  next() {
+    emit(ReconnectUserState());
   }
 }

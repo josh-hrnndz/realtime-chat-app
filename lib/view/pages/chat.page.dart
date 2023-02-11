@@ -12,7 +12,7 @@ import '../../data/model/response.model.dart';
 
 class ChatPage extends StatelessWidget {
   ChatPage({super.key});
-  
+
   final chatBoxController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   String userId = "";
@@ -23,110 +23,112 @@ class ChatPage extends StatelessWidget {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     bool isUser = false;
-    
 
-    return BlocProvider(
-      create: (context) => sl<SocketCubit>(),
-      child: BlocConsumer<SocketCubit, SocketState>(
-        listener: (context, state) {
-          if (state is ReceiveMessagesState) {
-            userId = state.userId;
-            responses = state.responses;
-          }
-        },
-        builder: (context, state) {
-          if (state is SocketInitial) {
-            BlocProvider.of<SocketCubit>(context).getMessages();
-          }
-          return Scaffold(
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
+    return BlocConsumer<SocketCubit, SocketState>(
+      listener: (context, state) {
+        if (state is ReceiveMessagesState) {
+          userId = state.userId;
+          responses = state.responses;
+        }
+        if (state is DisconnectSuccessState) {
+          context.goNamed(START);
+        }
+      },
+      builder: (context, state) {
+        if (state is SocketInitial) {
+          BlocProvider.of<SocketCubit>(context).getMessages();
+        }
+        return Scaffold(
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  ControlButton(
+                    height: height * .08,
+                    width: width * .5,
+                    buttonColor: TINT_GREEN,
+                    label: NEXT,
+                    onTap: () {
+                      BlocProvider.of<SocketCubit>(context).next();
+                    },
+                  ),
+                  ControlButton(
+                    height: height * .08,
+                    width: width * .5,
+                    buttonColor: TINT_RED,
+                    label: STOP,
+                    onTap: () {
+                      BlocProvider.of<SocketCubit>(context).stopConnection();
+                    },
+                  ),
+                ],
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: width * .03),
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: responses.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      if (index == responses.length - 1) {
+                        _scrollToBottom();
+                      }
+                      responses[index].userId == userId
+                          ? isUser = true
+                          : isUser = false;
+                      return Padding(
+                        padding: EdgeInsets.symmetric(vertical: height * .005),
+                        child: Align(
+                          alignment: isUser
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          child: Chat(
+                            isUser: isUser,
+                            message: responses[index].message,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: height * .02),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ControlButton(
-                      height: height * .08,
-                      width: width * .5,
-                      buttonColor: TINT_GREEN,
-                      label: NEXT,
-                      onTap: () {},
+                    SizedBox(
+                      width: width * .75,
+                      child: ChatBox(
+                        textEditingController: chatBoxController,
+                        hintText: CHATBOX_HINTTEXT,
+                      ),
                     ),
-                    ControlButton(
-                      height: height * .08,
-                      width: width * .5,
-                      buttonColor: TINT_RED,
-                      label: STOP,
-                      onTap: () {},
+                    SizedBox(
+                      width: width * .15,
+                      height: height * .07,
+                      child: AppButton(
+                        buttonType: "icon",
+                        icon: Icons.send,
+                        isIconRotated: true,
+                        iconRotation: 320,
+                        fontSize: 25,
+                        borderRadius: 25,
+                        onClick: () {
+                          BlocProvider.of<SocketCubit>(context)
+                              .sendMessage(userId, chatBoxController.text);
+                          chatBoxController.text = "";
+                        },
+                      ),
                     ),
                   ],
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: width * .03),
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      itemCount: responses.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        if (index == responses.length - 1) {
-                          _scrollToBottom();
-                        }
-                        responses[index].userId == userId
-                            ? isUser = true
-                            : isUser = false;
-                        return Padding(
-                          padding:
-                              EdgeInsets.symmetric(vertical: height * .005),
-                          child: Align(
-                            alignment: isUser
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: Chat(
-                              isUser: isUser,
-                              message: responses[index].message,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: height * .02),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      SizedBox(
-                        width: width * .75,
-                        child: ChatBox(
-                          textEditingController: chatBoxController,
-                          hintText: CHATBOX_HINTTEXT,
-                        ),
-                      ),
-                      SizedBox(
-                        width: width * .13,
-                        height: height * .07,
-                        child: AppButton(
-                          buttonType: "icon",
-                          icon: Icons.send,
-                          isIconRotated: true,
-                          iconRotation: 320,
-                          fontSize: 25,
-                          borderRadius: 25,
-                          onClick: () {
-                            BlocProvider.of<SocketCubit>(context)
-                                .sendMessage(userId, chatBoxController.text);
-                            chatBoxController.text = "";
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
