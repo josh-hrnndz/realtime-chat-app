@@ -31,7 +31,10 @@ class Routes {
       name: CHAT,
       path: '/$CHAT',
       builder: (BuildContext context, GoRouterState state) {
-        return ChatPage();
+        return BlocProvider(
+          create: (context) => sl<SocketCubit>(),
+          child: ChatPage(),
+        );
       },
     ),
   ];
