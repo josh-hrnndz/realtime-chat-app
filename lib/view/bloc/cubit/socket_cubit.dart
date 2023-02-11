@@ -11,8 +11,7 @@ class SocketCubit extends Cubit<SocketState> {
   final SocketRepository socketRepository;
   SocketCubit({required this.socketRepository}) : super(SocketInitial());
 
-  connect() {
-    emit(ConnectingState());
+  StreamSubscription? _streamSubscription;
 
     socketRepository.connect().then(
           (res) => res.fold(
@@ -31,14 +30,14 @@ class SocketCubit extends Cubit<SocketState> {
           (res) => res.fold(
             (failure) => emit(ConnectionFailedState(failure)),
             (success) {
-              final stream = res.getOrElse(() => const Stream.empty());
-              stream.listen((response) {
+              _streamSubscription =
+                  res.getOrElse(() => const Stream.empty()).listen((response) {
                 if (response.userId != socketRepository.userId) {
                   socketRepository.addResponse(response);
                 }
                 emit(ReceiveMessagesState(
                     socketRepository.responses, socketRepository.userId));
-              });
+              }, cancelOnError: true);
             },
           ),
         );
@@ -52,6 +51,19 @@ class SocketCubit extends Cubit<SocketState> {
           (res) => res.fold(
             (failure) => emit(ConnectionFailedState(failure)),
             (success) => {},
+          ),
+        );
+  }
+
+  stopConnection() {
+    socketRepository.stopConnection().then(
+          (res) => res.fold(
+            (failure) => emit(ConnectionFailedState(failure)),
+            (success) => {
+              _streamSubscription?.cancel(),
+              _streamSubscription = null,
+              emit(DisconnectSuccessState()),
+            },
           ),
         );
   }

@@ -22,3 +22,4 @@ class ReceiveMessagesState extends SocketState {
   ReceiveMessagesState(this.responses, this.userId);
 }
 
+class DisconnectSuccessState extends SocketState {}
