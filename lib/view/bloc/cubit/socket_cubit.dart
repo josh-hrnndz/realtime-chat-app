@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:realtime_chat_app/domain/repository/socket.repository.dart';
@@ -12,12 +14,13 @@ class SocketCubit extends Cubit<SocketState> {
   SocketCubit({required this.socketRepository}) : super(SocketInitial());
 
   StreamSubscription? _streamSubscription;
+  connect() {
+    emit(ConnectingState());
 
     socketRepository.connect().then(
           (res) => res.fold(
             (failure) => emit(ConnectionFailedState(failure)),
             (success) {
-              print(success.userId);
               socketRepository.setUser(success.userId);
               emit(ConnectionSuccessState());
             },
@@ -66,5 +69,9 @@ class SocketCubit extends Cubit<SocketState> {
             },
           ),
         );
+  }
+
+  next() {
+    emit(ReconnectUserState());
   }
 }
