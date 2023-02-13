@@ -9,6 +9,7 @@ class SocketRepositoryImpl implements SocketRepository {
   final SocketSource source;
   List<Response> _responses = [];
   String _userId = "";
+  String _roomName = "";
 
   SocketRepositoryImpl({required this.source});
 
@@ -17,6 +18,9 @@ class SocketRepositoryImpl implements SocketRepository {
 
   @override
   List<Response> get responses => _responses;
+
+  @override
+  String get roomName => _roomName;
 
   @override
   void addResponse(Response response) {
@@ -34,6 +38,11 @@ class SocketRepositoryImpl implements SocketRepository {
   }
 
   @override
+  void setRoomName(String roomName) {
+    _roomName = roomName;
+  }
+
+  @override
   Future<Either<Failure, Response>> connect() {
     return ErrorHandler.async<Response>(source.connect());
   }
@@ -48,8 +57,8 @@ class SocketRepositoryImpl implements SocketRepository {
   }
 
   @override
-  Future<Either<Failure, void>> sendMessage(String userId, String message) {
-    return ErrorHandler.async<void>(source.sendMessage(userId, message));
+  Future<Either<Failure, void>> sendMessage(String userId, String message, String roomName) {
+    return ErrorHandler.async<void>(source.sendMessage(userId, message, roomName));
   }
 
   @override
