@@ -49,8 +49,8 @@ class SocketSourceImpl extends SocketSource {
   }
 
   @override
-  Future<void> sendMessage(String userId, String message) async {
-    api.sendMessage(userId, message);
+  Future<void> sendMessage(String userId, String message, String roomName) async {
+    api.sendMessage(userId, message, roomName);
   }
 
   @override

@@ -117,7 +117,7 @@ class ChatPage extends StatelessWidget {
                         borderRadius: 25,
                         onClick: () {
                           BlocProvider.of<SocketCubit>(context)
-                              .sendMessage(userId, chatBoxController.text);
+                              .sendMessage(chatBoxController.text);
                           chatBoxController.text = "";
                         },
                       ),
