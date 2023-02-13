@@ -22,6 +22,7 @@ class SocketCubit extends Cubit<SocketState> {
             (failure) => emit(ConnectionFailedState(failure)),
             (success) {
               socketRepository.setUser(success.userId);
+              socketRepository.setRoomName(success.roomName);
               emit(ConnectionSuccessState());
             },
           ),
@@ -46,11 +47,17 @@ class SocketCubit extends Cubit<SocketState> {
         );
   }
 
-  sendMessage(String userId, String message) {
-    socketRepository.addResponse(Response(userId: userId, message: message));
+  sendMessage(String message) {
+    socketRepository.addResponse(Response(
+        userId: socketRepository.userId,
+        message: message,
+        roomName: socketRepository.roomName));
     emit(ReceiveMessagesState(
         socketRepository.responses, socketRepository.userId));
-    socketRepository.sendMessage(userId, message).then(
+    socketRepository
+        .sendMessage(
+            socketRepository.userId, message, socketRepository.roomName)
+        .then(
           (res) => res.fold(
             (failure) => emit(ConnectionFailedState(failure)),
             (success) => {},
