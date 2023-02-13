@@ -7,7 +7,7 @@ class ApiService {
     'autoConnect': false,
   });
 
-  sendMessage(String userId, String message) {
-    serverSocket.emit('message', {'userId': userId, 'message': message});
+  sendMessage(String userId, String message, String roomName) {
+    serverSocket.emit('message', {'userId': userId, 'message': message, 'roomName': roomName});
   }
 }
