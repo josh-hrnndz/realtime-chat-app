@@ -14,6 +14,7 @@ abstract class SocketRepository {
   void clearResponses();
   Future<Either<Failure, Response>> connect();
   Future<Either<Failure, Stream<Response>>> getMessages();
-  Future<Either<Failure, void>> sendMessage(String userId, String message, String roomName);
+  Future<Either<Failure, void>> sendMessage(
+      String userId, String message, String roomName);
   Future<Either<Failure, void>> stopConnection();
 }

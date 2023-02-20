@@ -62,8 +62,10 @@ class SocketRepositoryImpl implements SocketRepository {
   }
 
   @override
-  Future<Either<Failure, void>> sendMessage(String userId, String message, String roomName) {
-    return ErrorHandler.async<void>(source.sendMessage(userId, message, roomName));
+  Future<Either<Failure, void>> sendMessage(
+      String userId, String message, String roomName) {
+    return ErrorHandler.async<void>(
+        source.sendMessage(userId, message, roomName));
   }
 
   @override
