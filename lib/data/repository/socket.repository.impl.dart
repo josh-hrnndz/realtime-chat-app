@@ -28,6 +28,11 @@ class SocketRepositoryImpl implements SocketRepository {
   }
 
   @override
+  void setResponseStatus(bool isFailed) {
+    _responses[_responses.length - 1].isFailed = isFailed;
+  }
+
+  @override
   void setUser(String userId) {
     _userId = userId;
   }

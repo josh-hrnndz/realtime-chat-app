@@ -8,6 +8,7 @@ abstract class SocketRepository {
   get responses;
   get roomName;
   void addResponse(Response response);
+  void setResponseStatus(bool isFailed);
   void setUser(String userId);
   void setRoomName(String roomName);
   void clearResponses();
