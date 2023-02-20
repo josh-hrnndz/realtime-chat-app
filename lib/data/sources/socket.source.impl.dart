@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:realtime_chat_app/data/model/response.model.dart';
 import 'package:realtime_chat_app/domain/sources/socket.source.dart';
 
@@ -30,9 +31,14 @@ class SocketSourceImpl extends SocketSource {
       }
     });
 
-    return completer.future.timeout(const Duration(seconds: 20), onTimeout: () {
-      throw NetworkFailure("Connection failed");
+    Future.microtask(() async {
+      await Future.delayed(const Duration(seconds: 100));
+      if (!completer.isCompleted) {
+        throw NetworkFailure("Connection failed");
+      }
     });
+
+    return completer.future;
   }
 
   @override
@@ -49,8 +55,13 @@ class SocketSourceImpl extends SocketSource {
   }
 
   @override
-  Future<void> sendMessage(String userId, String message, String roomName) async {
-    api.sendMessage(userId, message, roomName);
+  Future<void> sendMessage(
+      String userId, String message, String roomName) async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      throw NetworkFailure("Connection Failed");
+    }
+    await api.sendMessage(userId, message, roomName);
   }
 
   @override
@@ -60,7 +71,7 @@ class SocketSourceImpl extends SocketSource {
     await Future.delayed(
       const Duration(seconds: 2),
       () {},
-    ).timeout(const Duration(seconds: 20), onTimeout: () {
+    ).timeout(const Duration(seconds: 60), onTimeout: () {
       throw NetworkFailure("Connection failed");
     });
   }
