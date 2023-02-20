@@ -86,6 +86,7 @@ class ChatPage extends StatelessWidget {
                           child: Chat(
                             isUser: isUser,
                             message: responses[index].message,
+                            isFailed: responses[index].isFailed,
                           ),
                         ),
                       );

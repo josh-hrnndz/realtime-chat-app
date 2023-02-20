@@ -59,7 +59,10 @@ class SocketCubit extends Cubit<SocketState> {
             socketRepository.userId, message, socketRepository.roomName)
         .then(
           (res) => res.fold(
-            (failure) => emit(ConnectionFailedState(failure)),
+            (failure) => {
+              socketRepository.setResponseStatus(true),
+              emit(ConnectionFailedState(failure)),
+            },
             (success) => {},
           ),
         );
