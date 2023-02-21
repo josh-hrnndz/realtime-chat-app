@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:realtime_chat_app/core/const/index.dart';
-import 'package:realtime_chat_app/core/di.dart';
 import 'package:realtime_chat_app/view/bloc/cubit/socket_cubit.dart';
 import 'package:realtime_chat_app/view/widgets/button.widget.dart';
 import 'package:realtime_chat_app/view/widgets/chat.widget.dart';
@@ -9,6 +9,7 @@ import 'package:realtime_chat_app/view/widgets/chatbox.widget.dart';
 import 'package:realtime_chat_app/view/widgets/control.button.widget.dart';
 
 import '../../data/model/response.model.dart';
+import '../widgets/modals.dart';
 
 class ChatPage extends StatelessWidget {
   ChatPage({super.key});
@@ -25,13 +26,60 @@ class ChatPage extends StatelessWidget {
     bool isUser = false;
 
     return BlocConsumer<SocketCubit, SocketState>(
+      listenWhen: (previous, current) {
+        if (previous is ReconnectUserState &&
+            current is DisconnectSuccessState) {
+          BlocProvider.of<SocketCubit>(context).connect(true);
+        }
+        if (current is ReconnectUserState &&
+            previous is DisconnectSuccessState) {
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return LoadingModal(
+                height: height,
+                message: "Finding strangers...",
+              );
+            },
+          );
+        }
+        if (current is ReconnectionFailedState &&
+            previous is ReconnectingUserState) {
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return ConnectionFailedModal(
+                height: height,
+                title: "Connection Failed",
+                message: current.failure.message,
+              );
+            },
+          );
+          Future.delayed(
+            const Duration(seconds: 2),
+            () {
+              Navigator.pop(context);
+            },
+          );
+        }
+        if (current is ReconnectionSuccessState &&
+            previous is ReconnectUserState) {
+          Navigator.pop(context);
+          responses = [];
+          BlocProvider.of<SocketCubit>(context).getMessages();
+        }
+        if (current is DisconnectSuccessState &&
+            previous is ReceiveMessagesState) {
+          context.goNamed(START);
+        }
+        return true;
+      },
       listener: (context, state) {
         if (state is ReceiveMessagesState) {
           userId = state.userId;
           responses = state.responses;
-        }
-        if (state is DisconnectSuccessState) {
-          context.goNamed(START);
         }
       },
       builder: (context, state) {
@@ -45,21 +93,23 @@ class ChatPage extends StatelessWidget {
               Row(
                 children: [
                   ControlButton(
-                    height: height * .08,
+                    height: height * .1,
                     width: width * .5,
                     buttonColor: TINT_GREEN,
                     label: NEXT,
                     onTap: () {
-                      BlocProvider.of<SocketCubit>(context).next();
+                      BlocProvider.of<SocketCubit>(context)
+                          .stopConnection(true);
                     },
                   ),
                   ControlButton(
-                    height: height * .08,
+                    height: height * .1,
                     width: width * .5,
                     buttonColor: TINT_RED,
                     label: STOP,
                     onTap: () {
-                      BlocProvider.of<SocketCubit>(context).stopConnection();
+                      BlocProvider.of<SocketCubit>(context)
+                          .stopConnection(false);
                     },
                   ),
                 ],

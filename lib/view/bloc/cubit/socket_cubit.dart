@@ -14,16 +14,23 @@ class SocketCubit extends Cubit<SocketState> {
   SocketCubit({required this.socketRepository}) : super(SocketInitial());
 
   StreamSubscription? _streamSubscription;
-  connect() {
-    emit(ConnectingState());
+  connect(bool isReconnect) {
+    isReconnect ? emit(ReconnectUserState()) : emit(ConnectingState());
 
+    _streamSubscription?.cancel();
+    _streamSubscription = null;
     socketRepository.connect().then(
           (res) => res.fold(
-            (failure) => emit(ConnectionFailedState(failure)),
+            (failure) => isReconnect
+                ? emit(ReconnectionFailedState(failure))
+                : emit(ConnectionFailedState(failure)),
             (success) {
               socketRepository.setUser(success.userId);
+              socketRepository.clearResponses();
               socketRepository.setRoomName(success.roomName);
-              emit(ConnectionSuccessState());
+              isReconnect
+                  ? emit(ReconnectionSuccessState())
+                  : emit(ConnectionSuccessState());
             },
           ),
         );
@@ -68,7 +75,8 @@ class SocketCubit extends Cubit<SocketState> {
         );
   }
 
-  stopConnection() {
+  stopConnection(bool isNext) {
+    isNext ? emit(ReconnectUserState()) : null;
     socketRepository.stopConnection().then(
           (res) => res.fold(
             (failure) => emit(ConnectionFailedState(failure)),
@@ -79,9 +87,5 @@ class SocketCubit extends Cubit<SocketState> {
             },
           ),
         );
-  }
-
-  next() {
-    emit(ReconnectUserState());
   }
 }

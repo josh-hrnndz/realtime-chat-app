@@ -74,7 +74,7 @@ class StartPage extends StatelessWidget {
                   buttonColor: DARK,
                   borderRadius: 21,
                   onClick: () {
-                    BlocProvider.of<SocketCubit>(context).connect();
+                    BlocProvider.of<SocketCubit>(context).connect(false);
                   },
                 ),
               ),
